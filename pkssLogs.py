@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from models import db
+# from models import db
 from json import dumps
 from flask_marshmallow import Marshmallow
 
