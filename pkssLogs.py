@@ -4,7 +4,6 @@ from json import dumps
 from flask_marshmallow import Marshmallow
 
 app = Flask(__name__)
-
 # ------------------- Configuration -------------------
 POSTGRES = {
     'user': 'pkssAdmin',
@@ -54,74 +53,84 @@ class Timer(BaseModel, db.Model):
     def __repr__(self):
         return '<User %r>' &self.timestamp
 
-class Dostawca(db.Model):
-    _tablename_='Dostawca'
+class Provider(db.Model):
+    _tablename_='Provider'
     id = db.Column(db.Integer, primary_key=True)
-    stan = db.Column(db.String(120))
-    strumien_ogrzanej_wody_Fzm = db.Column(db.String(80))
-    temp_wody_zasil_Tzm = db.Column(db.String(80))
-    temp_zewn_To = db.Column(db.String(80))
-    awaria = db.Column(db.Boolean)
+    status = db.Column(db.String(120))
+    warm_water_stream_Fzm = db.Column(db.String(80))
+    incoming_water_temp_Tzm = db.Column(db.String(80))
+    outside_temp_To = db.Column(db.String(80))
+    failure = db.Column(db.String(20))
     timestamp = db.Column(db.String(80))
 
-    def __init__(self, stan, strumien_ogrzanej_wody_Fzm, temp_wody_zasil_Tzm, temp_zewn_To, awaria, timestamp):
-        self.stan = stan
-        self.strumien_ogrzanej_wody_Fzm = strumien_ogrzanej_wody_Fzm
-        self.temp_wody_zasil_Tzm = temp_wody_zasil_Tzm
-        self.temp_zewn_To = temp_zewn_To
-        self.awaria = awaria
+    def __init__(self, status, warm_water_stream_Fzm, incoming_water_temp_Tzm, outside_temp_To, failure, timestamp):
+        self.status = status
+        self.warm_water_stream_Fzm = warm_water_stream_Fzm
+        self.incoming_water_temp_Tzm = incoming_water_temp_Tzm
+        self.outside_temp_To = outside_temp_To
+        self.failure = failure
         self.timestamp = timestamp
 
-class Regulator(db.Model):
-    _tablename_='Regulator'
-    id = db.Column(db.Integer, primary_key=True)
-    stan = db.Column(db.String(120))
-    temp_wody_wpływającej_Tzco = db.Column(db.String(80))
-    temp_zadana_Tzcoref = db.Column(db.String(80))
-    zawór = db.Column(db.String(20))
-    timestamp = db.Column(db.String(80))
-
-    def __init__(self, stan, temp_wody_wpływającej_Tzco, temp_zadana_Tzcoref, zawór, timestamp):
-        self.stan = stan
-        self.temp_wody_wpływającej_Tzco = temp_wody_wpływającej_Tzco
-        self.temp_zadana_Tzcoref = temp_zadana_Tzcoref
-        self.zawór = zawór
-        self.timestamp = timestamp
-
-class RegSchema(ma.Schema):
+class ProvSchema(ma.Schema):
     class Meta:
         # Fields to expose
-        fields = ("stan", "temp_wody_wpływającej_Tzco", "temp_zadana_Tzcoref", "zawór", "timestamp")
+        fields = ("status", "warm_water_stream_Fzm", "incoming_water_temp_Tzm", "outside_temp_To", "failure", "timestamp")
 
-reg_schema = RegSchema()
-regs_schema = RegSchema(many=True)
+prov_schema = ProvSchema()
+provs_schema = ProvSchema(many=True)
+
+class Controler(db.Model):
+    _tablename_='Controler'
+    id = db.Column(db.Integer, primary_key=True)
+    status = db.Column(db.String(120))
+    incoming_water_temp_Tzco = db.Column(db.String(80))
+    set_temp_Tzcoref = db.Column(db.String(80))
+    valve = db.Column(db.String(20))
+    timestamp = db.Column(db.String(80))
+
+    def __init__(self, status, incoming_water_temp_Tzco, set_temp_Tzcoref, valve, timestamp):
+        self.status = status
+        self.incoming_water_temp_Tzco = incoming_water_temp_Tzco
+        self.set_temp_Tzcoref = set_temp_Tzcoref
+        self.valve = valve
+        self.timestamp = timestamp
+
+class ControlSchema(ma.Schema):
+    class Meta:
+        # Fields to expose
+        fields = ("status", "incoming_water_temp_Tzco", "set_temp_Tzcoref", "valve", "timestamp")
+
+control_schema = ControlSchema()
+controls_schema = ControlSchema(many=True)
 
 class Wymiennik(db.Model):
     _tablename_='Wymiennik'
     id = db.Column(db.Integer, primary_key=True)
-    stan = db.Column(db.String(120))
+    status = db.Column(db.String(120))
     timestamp = db.Column(db.String(80))
     
-    def __init__(self, stan, timestamp):
-        self.stan = stan
+    def __init__(self, status, timestamp):
+        self.status = status
         self.timestamp = timestamp
 
-class Budynek1(db.Model):
-    _tablename_='Budynek1'
+class Building(db.Model):
+    _tablename_='Building'
     id = db.Column(db.Integer, primary_key=True)
-    stan = db.Column(db.String(120))
+    status = db.Column(db.String(120))
+    tag_name = db.Column(db.String(200))
     pobór_wody_Fcob = db.Column(db.String(80))
     temp_powrotna_Tpcob = db.Column(db.String(80))
-    temp_kaloryferow_Th = db.Column(db.String(80))
+    radiator_temp_Th = db.Column(db.String(80))
     temp_pomieszczen_Tr = db.Column(db.String(80))
     timestamp = db.Column(db.String(80))
 
-    def __init__(self, stan, pobór_wody_Fcob, temp_powrotna_Tpcob, temp_kaloryferow_Th, temp_pomieszczen_Tr, timestamp):
-        self.stan = stan
-        self.pobór_wody_Fcob = pobór_wody_Fcob
-        self.temp_powrotna_Tpcob = temp_powrotna_Tpcob
-        self.temp_kaloryferow_Th = temp_kaloryferow_Th
-        self.temp_pomieszczen_Tr = temp_pomieszczen_Tr
+    def __init__(self, status, tag_name, water_intake_Fcob, return_water_temp_Tpcob, radiator_temp_Th, room_temp_Tr, timestamp):
+        self.status = status
+        self.tag_name=tag_name
+        self.water_intake_Fcob = water_intake_Fcob
+        self.return_water_temp_Tpcob = return_water_temp_Tpcob
+        self.radiator_temp_Th = radiator_temp_Th
+        self.room_temp_Tr = room_temp_Tr
         self.timestamp = timestamp
 
 #-----------------------------------------------------------------------
@@ -131,69 +140,67 @@ class Budynek1(db.Model):
 def index():
     return "<h1 style='color': red'>Database!</h1>"
 
-#----------------------------- USER --------------------------
-# @app.route('/post_user', methods=['POST'])
-# def post_user():
-#     username = request.json['username']
-#     email = request.json['email']
-#     new_user = User(username, email)
-#     db.session.add(new_user)
-#     db.session.commit()
-#     return ("The new user was added!")
-
-# @app.route("/user", methods=["GET"])
-# def get_user():
-#     all_users = User.query.all()
-#     result = users_schema.dump(all_users)
-#     return jsonify(result)
-
-# @app.route("/user/<id>", methods=["GET"])
-# def user_detail(id):
-#     user = User.query.get(id)
-#     return user_schema.dump(user)
-
-# ----------------------- LOGGING_ALL ----------------------------------
-# @app.route('/log_all', methods=['POST'])
-# def log_all():
-#     # service_id = request.json['service_id']
-#     info_type = request.json['info_type']
-#     content = request.json['content']
-#     time_stamp = request.json['time_stamp']
-
-#     new_log_all = LogsAll(info_type, content, time_stamp)
-#     db.session.add(new_log_all)
-#     db.session.commit()
-#     return ("New log was received and worte to database")
-
-# ----------------------- REGULATOR ----------------------------------
-@app.route('/regulator/log', methods=['POST'])
-def log_regulator():
-    stan = request.json['stan']
-    temp_wody_wpływającej_Tzco = request.json['temp_wody_wpływającej_Tzco']
-    temp_zadana_Tzcoref = request.json['temp_zadana_Tzcoref']
-    zawór = request.json['zawór']
+# ----------------------- CONTROLER ----------------------------------
+@app.route('/controler/log', methods=['POST'])
+def log_controler():
+    status = request.json['status']
+    incoming_water_temp_Tzco = request.json['incoming_water_temp_Tzco']
+    set_temp_Tzcoref = request.json['set_temp_Tzcoref']
+    valve = request.json['valve']
     timestamp = request.json['timestamp']
 
-    new_log_reg = Regulator(stan, temp_wody_wpływającej_Tzco, temp_zadana_Tzcoref, zawór, timestamp)
-    db.session.add(new_log_reg)
+    new_log_cont = Controler(status, incoming_water_temp_Tzco, set_temp_Tzcoref, valve, timestamp)
+    db.session.add(new_log_cont)
     db.session.commit()
-    return ("New log of regulator was received and worte to database")
+    return ("New log of controler was received and worte to database")
 
-@app.route("/regulator", methods=["GET"])   #get all data
-def get_reg():
-    all_regs = Regulator.query.all()
-    result = regs_schema.dump(all_regs)
+@app.route("/controler", methods=["GET"])   #get all data
+def get_cont():
+    all_logs = Controler.query.all()
+    result = controls_schema.dump(all_logs)
     return jsonify(result)
 
-@app.route("/regulator/id/<id>", methods=["GET"])   #get id
+@app.route("/controler/id/<id>", methods=["GET"])   #get id
 def get_regId(id):
-    reg = Regulator.query.get(id)
-    return reg_schema.jsonify(reg)
+    log_id = Controler.query.get(id)
+    return control_schema.jsonify(log_id)
 
-@app.route("/regulator/last/<num>", methods=["GET"])   #get last x records
+@app.route("/controler/last/<num>", methods=["GET"])   #get last x records
 def get_regLast(num):
-    records = Regulator.query.filter().order_by(Regulator.id.desc()).limit(num).all()
-    result = regs_schema.dump(records)
+    records = Controler.query.filter().order_by(Controler.id.desc()).limit(num).all()
+    result = controls_schema.dump(records)
+    return jsonify(result)
+
+# ----------------------- PROVIDER ----------------------------------
+@app.route('/provider/log', methods=['POST'])
+def log_provider():
+    status = request.json['status']
+    timestamp = request.json['timestamp']
+    warm_water_stream_Fzm = request.json['warm_water_stream_Fzm']
+    incoming_water_temp_Tzm = request.json['incoming_water_temp_Tzm']
+    outside_temp_To = request.json['outside_temp_To']
+    failure = request.json['failure']
+
+    new_log_prov = Provider(status, warm_water_stream_Fzm, incoming_water_temp_Tzm, outside_temp_To, failure, timestamp)
+    db.session.add(new_log_prov)
+    db.session.commit()
+    return ("New log of provider was received and worte to database")
+
+@app.route("/provider", methods=["GET"])   #get all data
+def get_prov():
+    all_logs = Provider.query.all()
+    result = provs_schema.dump(all_logs)
+    return jsonify(result)
+
+@app.route("/provider/id/<id>", methods=["GET"])   #get id
+def get_provId(id):
+    log_id = Provider.query.get(id)
+    return prov_schema.jsonify(log_id)
+
+@app.route("/provider/last/<num>", methods=["GET"])   #get last x records
+def get_provLast(num):
+    records = Provider.query.filter().order_by(Provider.id.desc()).limit(num).all()
+    result = provss_schema.dump(records)
     return jsonify(result)
 
 
