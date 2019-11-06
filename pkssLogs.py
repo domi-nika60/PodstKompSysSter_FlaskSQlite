@@ -204,6 +204,6 @@ def get_provLast(num):
     return jsonify(result)
 
 
-
 if __name__ == '__main__':
+    db.create_all()
     app.run()
