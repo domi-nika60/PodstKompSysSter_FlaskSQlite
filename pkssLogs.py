@@ -42,16 +42,16 @@ class BaseModel(db.Model):
             for column, value in self._to_dict().items()
         }
 
-class Timer(BaseModel, db.Model):
-    __tablename__ = 'timer'
-    id = db.Column(db.Integer, primary_key = True)
-    timpestamp = db.Column(db.String)
+# class Timer(BaseModel, db.Model):
+#     __tablename__ = 'timer'
+#     id = db.Column(db.Integer, primary_key = True)
+#     timpestamp = db.Column(db.String)
 
-    def __init__(self, timestamp):
-        self.timestamp= timestamp
+#     def __init__(self, timestamp):
+#         self.timestamp= timestamp
 
-    def __repr__(self):
-        return '<User %r>' &self.timestamp
+#     def __repr__(self):
+#         return '<User %r>' &self.timestamp
 
 class Provider(db.Model):
     _tablename_='Provider'
@@ -103,8 +103,8 @@ class ControlSchema(ma.Schema):
 control_schema = ControlSchema()
 controls_schema = ControlSchema(many=True)
 
-class Wymiennik(db.Model):
-    _tablename_='Wymiennik'
+class Exchanger(db.Model):
+    _tablename_='Exchanger'
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(120))
     timestamp = db.Column(db.String(80))
@@ -112,6 +112,14 @@ class Wymiennik(db.Model):
     def __init__(self, status, timestamp):
         self.status = status
         self.timestamp = timestamp
+
+class ExchangerSchema(ma.Schema):
+    class Meta:
+        # Fields to expose
+        fields = ("status", "timestamp")
+
+exchanger_schema = ExchangerSchema()
+exchangers_schema = ExchangerSchema(many=True)
 
 class Building(db.Model):
     _tablename_='Building'
@@ -132,6 +140,14 @@ class Building(db.Model):
         self.radiator_temp_Th = radiator_temp_Th
         self.room_temp_Tr = room_temp_Tr
         self.timestamp = timestamp
+
+class BuildingSchema(ma.Schema):
+    class Meta:
+        # Fields to expose
+        fields = ("status", "tag_name", "water_intake_Fcob", "return_water_temp_Tpcob", "radiator_temp_Th", "room_temp_Tr", "timestamp")
+
+build_schema = BuildingSchema()
+builds_schema = BuildingSchema(many=True)
 
 #-----------------------------------------------------------------------
 #                             ROUTING
@@ -200,7 +216,68 @@ def get_provId(id):
 @app.route("/provider/last/<num>", methods=["GET"])   #get last x records
 def get_provLast(num):
     records = Provider.query.filter().order_by(Provider.id.desc()).limit(num).all()
-    result = provss_schema.dump(records)
+    result = provs_schema.dump(records)
+    return jsonify(result)
+
+# ----------------------- EXCHANGER ----------------------------------
+@app.route('/exchanger/log', methods=['POST'])
+def log_exchanger():
+    status = request.json['status']
+    timestamp = request.json['timestamp']
+
+    new_log_exch = Exchanger(status, timestamp)
+    db.session.add(new_log_exch)
+    db.session.commit()
+    return ("New log of exchanger was received and worte to database")
+
+@app.route("/exchanger", methods=["GET"])   #get all data
+def get_exch():
+    all_logs = Exchanger.query.all()
+    result = exchangers_schema.dump(all_logs)
+    return jsonify(result)
+
+@app.route("/exchanger/id/<id>", methods=["GET"])   #get id
+def get_exchId(id):
+    log_id = Exchanger.query.get(id)
+    return exchanger_schema.jsonify(log_id)
+
+@app.route("/exchanger/last/<num>", methods=["GET"])   #get last x records
+def get_exchLast(num):
+    records = Exchanger.query.filter().order_by(Exchanger.id.desc()).limit(num).all()
+    result = exchangers_schema.dump(records)
+    return jsonify(result)
+
+# ----------------------- BUILDING ----------------------------------
+@app.route('/building/log', methods=['POST'])
+def log_building():
+    status = request.json['status']
+    timestamp = request.json['timestamp']
+    tag_name = request.json['tag_name']
+    water_intake_Fcob = request.json['water_intake_Fcob']
+    return_water_temp_Tpcob = request.json['return_water_temp_Tpcob']
+    radiator_temp_Th = request.json['radiator_temp_Th']
+    room_temp_Tr = request.json['room_temp_Tr']
+
+    new_log_build = Building(status, timestamp, tag_name, water_intake_Fcob, return_water_temp_Tpcob, room_temp_Tr, radiator_temp_Th)
+    db.session.add(new_log_build)
+    db.session.commit()
+    return ("New log of building was received and worte to database")
+
+@app.route("/building", methods=["GET"])   #get all data
+def get_build():
+    all_logs = Building.query.all()
+    result = builds_schema.dump(all_logs)
+    return jsonify(result)
+
+@app.route("/building/id/<id>", methods=["GET"])   #get id
+def get_buildId(id):
+    log_id = Building.query.get(id)
+    return build_schema.jsonify(log_id)
+
+@app.route("/building/last/<num>", methods=["GET"])   #get last x records
+def get_buildLast(num):
+    records = Building.query.filter().order_by(Building.id.desc()).limit(num).all()
+    result = builds_schema.dump(records)
     return jsonify(result)
 
 
