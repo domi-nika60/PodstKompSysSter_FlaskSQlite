@@ -126,10 +126,10 @@ class Building(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(120))
     tag_name = db.Column(db.String(200))
-    pobór_wody_Fcob = db.Column(db.String(80))
-    temp_powrotna_Tpcob = db.Column(db.String(80))
+    water_intake_Fcob = db.Column(db.String(80))
+    return_water_temp_Tpcob = db.Column(db.String(80))
     radiator_temp_Th = db.Column(db.String(80))
-    temp_pomieszczen_Tr = db.Column(db.String(80))
+    room_temp_Tr = db.Column(db.String(80))
     timestamp = db.Column(db.String(80))
 
     def __init__(self, status, tag_name, water_intake_Fcob, return_water_temp_Tpcob, radiator_temp_Th, room_temp_Tr, timestamp):
@@ -251,14 +251,14 @@ def get_exchLast(num):
 @app.route('/building/log', methods=['POST'])
 def log_building():
     status = request.json['status']
-    timestamp = request.json['timestamp']
     tag_name = request.json['tag_name']
     water_intake_Fcob = request.json['water_intake_Fcob']
     return_water_temp_Tpcob = request.json['return_water_temp_Tpcob']
     radiator_temp_Th = request.json['radiator_temp_Th']
     room_temp_Tr = request.json['room_temp_Tr']
+    timestamp = request.json['timestamp']
 
-    new_log_build = Building(status, timestamp, tag_name, water_intake_Fcob, return_water_temp_Tpcob, room_temp_Tr, radiator_temp_Th)
+    new_log_build = Building(status, tag_name, water_intake_Fcob, return_water_temp_Tpcob, radiator_temp_Th, room_temp_Tr, timestamp)
     db.session.add(new_log_build)
     db.session.commit()
     return ("New log of building was received and worte to database")
@@ -276,7 +276,13 @@ def get_buildId(id):
 
 @app.route("/building/last/<num>", methods=["GET"])   #get last x records
 def get_buildLast(num):
-    records = Building.query.filter().order_by(Building.id.desc()).limit(num).all()
+    records = Building.query.filter().order_by(Building.id).limit(num).all()
+    result = builds_schema.dump(records)
+    return jsonify(result)
+
+@app.route("/building/tag/<tag>", methods=["GET"])   
+def get_buildTag(tag):
+    records = Building.query.filter_by(tag_name=tag).all()
     result = builds_schema.dump(records)
     return jsonify(result)
 
