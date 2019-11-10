@@ -107,16 +107,20 @@ class Exchanger(db.Model):
     _tablename_='Exchanger'
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.String(120))
+    supply_temp = db.Column(db.String(80))
+    returnMPC_temp = db.Column(db.String(80))
     timestamp = db.Column(db.String(80))
     
-    def __init__(self, status, timestamp):
+    def __init__(self, status, supply_temp, returnMPC_temp, timestamp):
         self.status = status
+        self.supply_temp = supply_temp
+        self.returnMPC_temp = returnMPC_temp
         self.timestamp = timestamp
 
 class ExchangerSchema(ma.Schema):
     class Meta:
         # Fields to expose
-        fields = ("status", "timestamp")
+        fields = ("status", "supply_temp", "returnMPC_temp", "timestamp")
 
 exchanger_schema = ExchangerSchema()
 exchangers_schema = ExchangerSchema(many=True)
@@ -223,9 +227,11 @@ def get_provLast(num):
 @app.route('/exchanger/log', methods=['POST'])
 def log_exchanger():
     status = request.json['status']
+    supply_temp = request.json['supply_temp']
+    returnMPC_temp = request.json['returnMPC_temp']
     timestamp = request.json['timestamp']
 
-    new_log_exch = Exchanger(status, timestamp)
+    new_log_exch = Exchanger(status, supply_temp, returnMPC_temp, timestamp)
     db.session.add(new_log_exch)
     db.session.commit()
     return ("New log of exchanger was received and worte to database")
