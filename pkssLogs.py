@@ -295,6 +295,13 @@ def get_buildTag(tag):
     result = builds_schema.dump(records)
     return jsonify(result)
 
+@app.route("/building/taglast/<tag>", methods=["GET"])   
+def get_buildTagLast(tag):
+    print("Zapytanie o building TAGLAST")
+    records = Building.query.filter_by(tag_name=tag).order_by(Building.id).limit(1).all()
+    result = builds_schema.dump(records)
+    return jsonify(result)
+
 
 if __name__ == '__main__':
     db.create_all()
