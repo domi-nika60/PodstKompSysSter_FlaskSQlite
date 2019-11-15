@@ -42,17 +42,6 @@ class BaseModel(db.Model):
             for column, value in self._to_dict().items()
         }
 
-# class Timer(BaseModel, db.Model):
-#     __tablename__ = 'timer'
-#     id = db.Column(db.Integer, primary_key = True)
-#     timpestamp = db.Column(db.String)
-
-#     def __init__(self, timestamp):
-#         self.timestamp= timestamp
-
-#     def __repr__(self):
-#         return '<User %r>' &self.timestamp
-
 class Provider(db.Model):
     _tablename_='Provider'
     id = db.Column(db.Integer, primary_key=True)
@@ -156,9 +145,10 @@ builds_schema = BuildingSchema(many=True)
 #-----------------------------------------------------------------------
 #                             ROUTING
 #-----------------------------------------------------------------------
-@app.route('/')
-def index():
-    return "<h1 style='color': red'>Database!</h1>"
+# @app.route('/')
+# def index():
+#     print("Zapytanie o baze")
+#     return "<h1 style='color': red'>Database!</h1>"
 
 # ----------------------- CONTROLER ----------------------------------
 @app.route('/controler/log', methods=['POST'])
@@ -176,17 +166,20 @@ def log_controler():
 
 @app.route("/controler", methods=["GET"])   #get all data
 def get_cont():
+    print("Zapytanie o controler")
     all_logs = Controler.query.all()
     result = controls_schema.dump(all_logs)
     return jsonify(result)
 
 @app.route("/controler/id/<id>", methods=["GET"])   #get id
 def get_regId(id):
+    print("Zapytanie o controler ID")
     log_id = Controler.query.get(id)
     return control_schema.jsonify(log_id)
 
 @app.route("/controler/last/<num>", methods=["GET"])   #get last x records
 def get_regLast(num):
+    print("Zapytanie o controler LAST")
     records = Controler.query.filter().order_by(Controler.id.desc()).limit(num).all()
     result = controls_schema.dump(records)
     return jsonify(result)
@@ -208,17 +201,20 @@ def log_provider():
 
 @app.route("/provider", methods=["GET"])   #get all data
 def get_prov():
+    print("Zapytanie o provider")
     all_logs = Provider.query.all()
     result = provs_schema.dump(all_logs)
     return jsonify(result)
 
 @app.route("/provider/id/<id>", methods=["GET"])   #get id
 def get_provId(id):
+    print("Zapytanie o provider ID")
     log_id = Provider.query.get(id)
     return prov_schema.jsonify(log_id)
 
 @app.route("/provider/last/<num>", methods=["GET"])   #get last x records
 def get_provLast(num):
+    print("Zapytanie o provider LAST")
     records = Provider.query.filter().order_by(Provider.id.desc()).limit(num).all()
     result = provs_schema.dump(records)
     return jsonify(result)
@@ -238,17 +234,20 @@ def log_exchanger():
 
 @app.route("/exchanger", methods=["GET"])   #get all data
 def get_exch():
+    print("Zapytanie o exchanger")
     all_logs = Exchanger.query.all()
     result = exchangers_schema.dump(all_logs)
     return jsonify(result)
 
 @app.route("/exchanger/id/<id>", methods=["GET"])   #get id
 def get_exchId(id):
+    print("Zapytanie o exchanger ID")
     log_id = Exchanger.query.get(id)
     return exchanger_schema.jsonify(log_id)
 
 @app.route("/exchanger/last/<num>", methods=["GET"])   #get last x records
 def get_exchLast(num):
+    print("Zapytanie o exchanger LAST")
     records = Exchanger.query.filter().order_by(Exchanger.id.desc()).limit(num).all()
     result = exchangers_schema.dump(records)
     return jsonify(result)
@@ -271,23 +270,27 @@ def log_building():
 
 @app.route("/building", methods=["GET"])   #get all data
 def get_build():
+    print("Zapytanie o building")
     all_logs = Building.query.all()
     result = builds_schema.dump(all_logs)
     return jsonify(result)
 
 @app.route("/building/id/<id>", methods=["GET"])   #get id
 def get_buildId(id):
+    print("Zapytanie o building ID")
     log_id = Building.query.get(id)
     return build_schema.jsonify(log_id)
 
 @app.route("/building/last/<num>", methods=["GET"])   #get last x records
 def get_buildLast(num):
+    print("Zapytanie o building LAST")
     records = Building.query.filter().order_by(Building.id).limit(num).all()
     result = builds_schema.dump(records)
     return jsonify(result)
 
 @app.route("/building/tag/<tag>", methods=["GET"])   
 def get_buildTag(tag):
+    print("Zapytanie o building TAG")
     records = Building.query.filter_by(tag_name=tag).all()
     result = builds_schema.dump(records)
     return jsonify(result)
