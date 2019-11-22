@@ -266,7 +266,7 @@ def log_building():
     new_log_build = Building(status, tag_name, water_intake_Fcob, return_water_temp_Tpcob, radiator_temp_Th, room_temp_Tr, timestamp)
     db.session.add(new_log_build)
     db.session.commit()
-    return ("New log of building was received and worte to database")
+    return ("{ \"status\": \"OK\" }")
 
 @app.route("/building", methods=["GET"])   #get all data
 def get_build():
