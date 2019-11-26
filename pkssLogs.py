@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from json import dumps
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 # ------------------- Configuration -------------------
@@ -17,6 +18,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://pkssAdmin:pkssAdmin1@logs.ce
 app.debug = True
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
+
+def after_request(response):
+    header = response.headers
+    header['Access-Control-Allow-Origin'] = '*'
+    return respons
 
 # -------------------------- Classes with models ----------------------------------
 class BaseModel(db.Model):
