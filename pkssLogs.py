@@ -23,7 +23,7 @@ ma = Marshmallow(app)
 def after_request(response):
     header = response.headers
     header['Access-Control-Allow-Origin'] = '*'
-    return respons
+    return response
 
 # -------------------------- Classes with models ----------------------------------
 class BaseModel(db.Model):
