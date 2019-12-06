@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://pkssAdmin:pkssAdmin1@logs.ce
 app.debug = True
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
-
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 def after_request(response):
     header = response.headers
