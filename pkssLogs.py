@@ -291,7 +291,7 @@ def get_buildId(id):
 @app.route("/building/last/<num>", methods=["GET"])   #get last x records
 def get_buildLast(num):
     print("Zapytanie o building LAST")
-    records = Building.query.filter().order_by(Building.id).limit(num).all()
+    records = Building.query.filter().order_by(Building.id.desc()).limit(num).all()
     result = builds_schema.dump(records)
     return jsonify(result)
 
@@ -305,7 +305,7 @@ def get_buildTag(tag):
 @app.route("/building/taglast/<tag>/<num>", methods=["GET"])   
 def get_buildTagLastNum(tag, num):
     print("Zapytanie o building TAGLASTNum")
-    records = Building.query.filter_by(tag_name=tag).order_by(Building.id).limit(num).all()
+    records = Building.query.filter_by(tag_name=tag).order_by(Building.id.desc()).limit(num).all()
     result = builds_schema.dump(records)
     return jsonify(result)
 
